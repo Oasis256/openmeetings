@@ -43,6 +43,7 @@ import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.openmeetings.IApplication;
 import org.apache.openmeetings.core.remote.util.SessionVariablesUtil;
 import org.apache.openmeetings.core.util.WebSocketHelper;
@@ -82,6 +83,8 @@ import org.red5.server.api.service.IPendingServiceCall;
 import org.red5.server.api.service.IPendingServiceCallback;
 import org.red5.server.api.service.IServiceCapableConnection;
 import org.red5.server.api.stream.IBroadcastStream;
+import org.red5.server.api.stream.IStreamListener;
+import org.red5.server.api.stream.IStreamPacket;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -651,8 +654,26 @@ public class ScopeApplicationAdapter extends MultiThreadedApplicationAdapter imp
 					return false;
 				}
 			}.start();
-			JSONObject obj = new JSONObject().put("uid", c.getPublicSID()).put("screenShare", c.isScreenClient());
+			final Long roomId = c.getRoomId();
+			final JSONObject obj = new JSONObject().put("uid", c.getPublicSID()).put("screenShare", c.isScreenClient());
 			WebSocketHelper.sendRoom(new TextRoomMessage(c.getRoomId(), c.getUserId(), RoomMessage.Type.newStream, obj.toString()));
+			stream.addStreamListener(new IStreamListener() {
+				@Override
+				public void packetReceived(IBroadcastStream str, IStreamPacket packet) {
+					byte[] b = new byte[packet.getData().limit()];
+					packet.getData().duplicate().get(b);
+					JSONObject msg = new JSONObject()
+						.put("type", "stream")
+						.put("msg", new JSONObject(obj.toString())
+								.put("publishedName", str.getPublishedName())
+								.put("packet", new JSONObject()
+										.put("type", packet.getDataType())
+										.put("time", packet.getTimestamp())
+										.put("data", Base64.encodeBase64String(b))
+								));
+					WebSocketHelper.sendRoom(roomId, msg, null, null);
+				}
+			});
 		} catch (Exception err) {
 			log.error("[streamPublishStart]", err);
 		}

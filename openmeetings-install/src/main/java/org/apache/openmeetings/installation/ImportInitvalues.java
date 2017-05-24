@@ -362,7 +362,7 @@ public class ImportInitvalues {
 		cfgDao.add(CONFIG_GOOGLE_ANALYTICS_CODE, null, null, "Code for Google Analytics");
 		cfgDao.add(CONFIG_FLASH_SECURE, "no", null, "Wether it should try to connect to rtmps first or not\nValid values: yes / no");
 		cfgDao.add(CONFIG_FLASH_SECURE_PROXY, "none", null, "The setting for the NetConnection default settings is 'none'\n set to value 'best' if you are trying to use rtmp over native SSL");
-		cfgDao.add(CONFIG_FLASH_VIDEO_CODEC, "h263", null, "Camera codecType, possible values: 'h263', 'h264'");
+		cfgDao.add(CONFIG_FLASH_VIDEO_CODEC, "h264", null, "Camera codecType, possible values: 'h263', 'h264'");
 		cfgDao.add(CONFIG_FLASH_VIDEO_FPS, "30", null, "Camera FPS, should be positive number in range (0, 60]");
 
 		cfgDao.add(CONFIG_HEADER_XFRAME, HEADER_XFRAME_SAMEORIGIN, null, "Value for 'X-Frame-Options' header (default: DENY), more info: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options");

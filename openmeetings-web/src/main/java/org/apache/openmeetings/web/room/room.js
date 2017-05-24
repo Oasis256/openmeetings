@@ -225,6 +225,20 @@ function roomClosed(jqEvent, msg) {
 		]
 	});
 }
+function roomWsHandler(jqEvent, msg) {
+	try {
+		var m = jQuery.parseJSON(msg);
+		if (m) {
+			switch(m.type) {
+				case "stream":
+					console.log(m.msg);
+					break;
+			}
+		}
+	} catch (err) {
+		//no-op
+	}
+}
 function roomLoad() {
 	$(".room.sidebar.left").ready(function() {
 		setRoomSizes();
@@ -240,11 +254,13 @@ function roomLoad() {
 	});
 	Wicket.Event.subscribe("/websocket/closed", roomClosed);
 	Wicket.Event.subscribe("/websocket/error", roomClosed);
+	Wicket.Event.subscribe("/websocket/message", roomWsHandler);
 }
 function roomUnload() {
 	$(window).off('resize.openmeetings');
 	Wicket.Event.unsubscribe("/websocket/closed", roomClosed);
 	Wicket.Event.unsubscribe("/websocket/error", roomClosed);
+	Wicket.Event.subscribe("/websocket/message", roomWsHandler);
 	if (!!WbArea) {
 		WbArea.destroy();
 	}
